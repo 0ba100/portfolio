@@ -1,13 +1,11 @@
 services:
   postgres:
     image: postgres:latest
-    build:
-      context: .
-      dockerfile: docker/postgres.Dockerfile
     restart: unless-stopped
     env_file: .env
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./docker/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
     ports:
       - 127.0.0.1:${POSTGRES_EXTERNAL_PORT}:5432
     healthcheck:
