@@ -8,6 +8,9 @@ services:
       - ./docker/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
     ports:
       - 127.0.0.1:${POSTGRES_EXTERNAL_PORT}:5432
+    networks:
+      app-network:
+        ipv4_address: 10.0.0.4
 
   keycloak:
     image: quay.io/keycloak/keycloak:latest
@@ -17,6 +20,41 @@ services:
     depends_on:
       - postgres
     command: "start-dev"
+    environment:
+      - KC_HTTP_ENABLED=true
+      - KC_PROXY_HEADERS=xforwarded
+      - KC_PROXY_TRUSTED_ADDRESSES=10.0.0.2
+      - KC_DB=postgres
+      - KC_DB_PASSWORD=${POSTGRES_KC_PASSWORD}
+      - KC_DB_USERNAME=${POSTGRES_KC_USER}
+      - KC_DB_URL=jdbc:postgresql://postgres:5432/${POSTGRES_KC_DB}
+    networks:
+      app-network:
+        ipv4_address: 10.0.0.3
+
+  caddy:
+    image: caddy:latest
+    env_file: .env
+    ports:
+      - 127.0.0.1:${CADDY_EXTERNAL_PORT_HTTP}:80
+      - 127.0.0.1:${CADDY_EXTERNAL_PORT_HTTPS}:443
+      - 127.0.0.1:${CADDY_EXTERNAL_PORT_HTTPS}:443/udp
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ./caddy/data:/data
+      - ./caddy/config:/config
+      - ./caddy/ssl:/ssl
+    networks:
+      app-network:
+        ipv4_address: 10.0.0.2
 
 volumes:
   pgdata:
+
+networks:
+  app-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.0.0/24
+          gateway: 10.0.0.1
