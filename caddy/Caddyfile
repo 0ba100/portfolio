@@ -1,0 +1,5 @@
+{$KC_HOSTNAME}:{$CADDY_EXTERNAL_HTTPS_PORT} {
+    tls /ssl/cert.pem /ssl/key.pem
+
+    reverse_proxy keycloak:8080
+}
