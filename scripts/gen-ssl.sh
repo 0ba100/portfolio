@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 
-# adopt the .env file
-source "$(dirname "$0")/../.env"
-
 set -eux
+
+source "$(dirname "$0")/../.env"
 
 mkdir -p "$(dirname "$0")/../caddy/ssl"
 
