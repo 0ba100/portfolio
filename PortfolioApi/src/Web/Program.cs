@@ -1,3 +1,4 @@
+using PortfolioApi.Infrastructure;
 using PortfolioApi.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
